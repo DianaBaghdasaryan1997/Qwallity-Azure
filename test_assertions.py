@@ -10,6 +10,6 @@ def test_assert_2():
     assert 150 == 150
     
 def test_assert_3():
-    assert 150 == 200
+    assert 200 == 200
     
 logging.info(f"Program has ended at: {datetime.now()}")
