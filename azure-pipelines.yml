@@ -1,0 +1,36 @@
+trigger:
+- main
+
+pool:
+  vmImage: ubuntu-latest
+strategy:
+  matrix:
+    Python3.11:
+      python.version: '3.11'
+
+steps:
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: '$(python.version)'
+  displayName: 'Use Python $(python.version)'
+
+- script: |
+    python -m pip install --upgrade pip
+    pip install -r requirements.txt
+  displayName: 'Install dependencies'
+
+- script: |
+    pip install pytest pytest-azurepipelines
+    pytest
+  displayName: 'pytest'
+
+- script: |
+    wget https://repo.maven.apache.org/maven2/io/qameta/allure/allure-commandline/2.14.0/allure-commandline-2.14.0.zip
+    unzip allure-commandline-2.14.0.zip
+    export PATH=$PATH:$(Agent.TempDirectory)/allure-2.14.0/bin
+  displayName: 'Install Allure'
+
+- script: |
+    allure generate --clean
+    allure open
+  displayName: 'Generate and Open Allure Report'
