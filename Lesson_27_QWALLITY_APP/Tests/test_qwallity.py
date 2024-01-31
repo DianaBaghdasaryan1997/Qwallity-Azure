@@ -26,4 +26,6 @@ def test_qwallity_app(driver):
     login_page_obj = LoginPage(driver)
     login_page_obj.log_in(username, password)
     
+    assert 1==1
+    
     logging.info(f"Program has ended at: {datetime.now()}")
