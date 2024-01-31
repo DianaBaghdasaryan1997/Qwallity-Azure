@@ -1,1 +1,0 @@
-# Qwallity-Azure

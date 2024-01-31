@@ -1,16 +1,12 @@
-# Python package
-# Create and test a Python package on multiple Python versions.
-# Add steps that analyze code, save the dist with the build record, publish to a PyPI-compatible index, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/python
-
 trigger:
 - main
 
 pool:
   vmImage: ubuntu-latest
+
 strategy:
   matrix:
-    Python3.11:
+    Python311:
       python.version: '3.11'
 
 steps:
@@ -20,22 +16,29 @@ steps:
   displayName: 'Use Python $(python.version)'
 
 - script: |
+
     python -m pip install --upgrade pip
+    pip install pytest-html
     pip install -r requirements.txt
-  displayName: 'Install dependencies'
+    pip install pytest pytest-azurepipelines allure-pytest
+    npm install -g allure-commandline
+  displayName: 'Install Dependencies'
+
+
 
 - script: |
-    pip install pytest pytest-azurepipelines
-    pytest
-  displayName: 'pytest'
+    pytest --alluredir=**/allure-results
+  
+  displayName: 'Run Tests'
 
-- script: |
-    wget https://repo.maven.apache.org/maven2/io/qameta/allure/allure-commandline/2.14.0/allure-commandline-2.14.0.zip
-    unzip allure-commandline-2.14.0.zip
-    export PATH=$PATH:$(Agent.TempDirectory)/allure-2.14.0/bin
-  displayName: 'Install Allure'
-
-- script: |
-    allure generate --clean
-    allure open
-  displayName: 'Generate and Open Allure Report'
+- task: PublishTestResults@2
+  inputs:
+    testResultsFormat: 'JUnit'
+    testResultsFiles: '**/TEST-*.xml'
+  condition: always() 
+    
+- task: PublishAllureReport@1
+  inputs:
+    allureVersion: '2.25.0'
+    testResultsDir: '**/allure-results'
+  condition: always() 
